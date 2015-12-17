@@ -49,8 +49,8 @@ def randomPrime(pMin, pMax):
 
 
 class UniversalHashFamily(object):
-   def __init__(self, universeSize, primeBounds=None):
-      self.universeSize = universeSize
+   def __init__(self, numBins, primeBounds=None):
+      self.numBins = numBins
    
       if primeBounds is not None:
          pMin, pMax = primeBounds
@@ -67,4 +67,20 @@ class UniversalHashFamily(object):
       a = random.randint(1, self.p-1)
       b = random.randint(0, self.p-1)
 
-      return lambda x: ((a*x + b) % self.p) % self.m
+      return lambda x: ((a*x + b) % self.p) % self.numBins
+
+
+if __name__ == "__main__":
+   # test the load balancer
+   m = 100000
+   n = 100
+
+   H = UniversalHashFamily(numBins=n, primeBounds=[n, 2*n])
+   
+   results = []
+   for simulation in range(100):
+      bins = [0] * n
+      h = H.draw()
+      for i in range(m):
+         bins[h(i)] += 1
+      results.append(max(bins))
