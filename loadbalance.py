@@ -70,6 +70,24 @@ class UniversalHashFamily(object):
       return lambda x: ((a*x + b) % self.p) % self.numBins
 
 
+class ChoiceHashFamily(object):
+   def __init__(self, hashFamily, queryBinSize, numChoices=2):
+      self.queryBinSize = queryBinSize
+      self.hashFamily = hashFamily
+      self.numChoices = numChoices
+   
+   def draw(self):
+      hashes = [self.hashFamily.draw() for _ in range(self.numChoices)]
+      
+      def h(x):
+         indices = [h(x) for h in hashes]
+         counts = [self.queryBinSize(i) for i in indices]
+         count, index = min([(c, i) for (c, i) in zip(counts, indices)])
+         return index
+
+      return h
+
+
 if __name__ == "__main__":
    # test the load balancer
    m = 100000
